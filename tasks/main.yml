@@ -1,0 +1,18 @@
+---
+# tasks file for ansible-role-metallb
+- name: Change strictARP on configMap
+  shell: 'kubectl get configmap kube-proxy -n kube-system -o yaml | sed -e "s/strictARP: false/strictARP: true/" | kubectl apply -f - -n kube-system'
+
+- name: Apply metallb-namespace manifest
+  shell: kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.11.0/manifests/namespace.yaml
+
+- name: Apply metallb manifest
+  shell: kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.11.0/manifests/metallb.yaml
+
+- name: Copy template for metallb configmap
+  template:
+    src: configmap.j2
+    dest: /root/configmap.yaml
+
+- name: Apply configmap for metallb configmap
+  shell: kubectl apply -f /root/configmap.yaml
