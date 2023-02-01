@@ -4,10 +4,10 @@
   shell: 'kubectl get configmap kube-proxy -n kube-system -o yaml | sed -e "s/strictARP: false/strictARP: true/" | kubectl apply -f - -n kube-system'
 
 - name: Apply metallb-namespace manifest
-  shell: kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.11.0/manifests/namespace.yaml
+  shell: kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v"{{ metallb_version }}"/manifests/namespace.yaml
 
 - name: Apply metallb manifest
-  shell: kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.11.0/manifests/metallb.yaml
+  shell: kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v"{{ metallb_version }}"/manifests/metallb.yaml
 
 - name: Copy template for metallb configmap
   template:

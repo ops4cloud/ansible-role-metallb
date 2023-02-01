@@ -1,4 +1,5 @@
 ---
 # defaults file for ansible-role-metallb
+metallb_version: 0.11.0
 metallb_start_range: 10.10.10.1
 metallb_end_range: 10.10.10.20
