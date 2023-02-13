@@ -3,3 +3,4 @@
 metallb_version: 0.11.0
 metallb_start_range: 10.10.10.1
 metallb_end_range: 10.10.10.20
+metallb_addresspool_name: default

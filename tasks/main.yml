@@ -1,18 +1,46 @@
 ---
 # tasks file for ansible-role-metallb
+
+- name: set major version in fact
+  set_fact:
+    version: "{{ metallb_version | split('.') }}"
+
 - name: Change strictARP on configMap
   shell: 'kubectl get configmap kube-proxy -n kube-system -o yaml | sed -e "s/strictARP: false/strictARP: true/" | kubectl apply -f - -n kube-system'
 
+- name: Apply manifest for version above 12.1
+  shell: kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v"{{ metallb_version }}"/config/manifests/metallb-native.yaml
+  when: version[1] | int >= 13
+
 - name: Apply metallb-namespace manifest
   shell: kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v"{{ metallb_version }}"/manifests/namespace.yaml
+  when: version[1] | int < 13
 
 - name: Apply metallb manifest
   shell: kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v"{{ metallb_version }}"/manifests/metallb.yaml
+  when: version[1] | int < 13
 
 - name: Copy template for metallb configmap
   template:
     src: configmap.j2
     dest: /root/configmap.yaml
+  when: version[1] | int < 13
 
-- name: Apply configmap for metallb configmap
+- name: Apply configmap for metallb
   shell: kubectl apply -f /root/configmap.yaml
+  when: version[1] | int < 13
+
+- name: Copy template for metallb address pool
+  template:
+    src: address_pool.j2
+    dest: /root/address_pool.yaml
+  when: version[1] | int >= 13
+
+- name: Pause for 2 minutes to let metallb run before applying address_pool
+  ansible.builtin.pause:
+    minutes: 2
+  when: version[1] | int >= 13
+
+- name: Apply address pool for metallb
+  shell: kubectl apply -f /root/address_pool.yaml
+  when: version[1] | int >= 13
