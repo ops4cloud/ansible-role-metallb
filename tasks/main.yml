@@ -36,6 +36,12 @@
     dest: /root/address_pool.yaml
   when: version[1] | int >= 13
 
+- name: Copy template for metallb L2Advertisement
+  template:
+    src: L2Advertisement.j2
+    dest: /root/L2Advertisement.yaml
+  when: version[1] | int >= 13
+
 - name: Pause for 2 minutes to let metallb run before applying address_pool
   ansible.builtin.pause:
     minutes: 2
@@ -43,4 +49,8 @@
 
 - name: Apply address pool for metallb
   shell: kubectl apply -f /root/address_pool.yaml
+  when: version[1] | int >= 13
+
+- name: Apply L2Advertisement for metallb
+  shell: kubectl apply -f /root/L2Advertisement.yaml
   when: version[1] | int >= 13
